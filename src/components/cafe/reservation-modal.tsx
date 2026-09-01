@@ -89,10 +89,10 @@ export function ReservationModal() {
         </div>
 
         {confirmed ? (
-          /* Confirmation Screen */
-          <div className="p-8 text-center space-y-5">
-            <div className="mx-auto size-16 rounded-full bg-[#D9A15B]/20 border border-[#D9A15B]/40 flex items-center justify-center text-[#D9A15B] animate-bounce">
-              <CheckCircle2 className="size-9" />
+          /* Confirmation Screen with Embedded Reservation Bill Slip */
+          <div className="p-6 text-center space-y-5">
+            <div className="mx-auto size-14 rounded-full bg-[#D9A15B]/20 border border-[#D9A15B]/40 flex items-center justify-center text-[#D9A15B] animate-bounce">
+              <CheckCircle2 className="size-8" />
             </div>
 
             <div>
@@ -100,45 +100,82 @@ export function ReservationModal() {
                 Confirmation #{confirmed.id}
               </span>
               <h4 className="mt-1 font-display text-2xl font-bold">We Can't Wait to Host You!</h4>
-              <p className="mt-2 text-sm text-[#A89F91] max-w-xs mx-auto">
-                A table for {guests} guests has been reserved under your name.
-              </p>
             </div>
 
-            <div className="rounded-2xl bg-[#26201C] p-4 border border-[#D9A15B]/15 flex items-center justify-around text-center">
-              <div>
-                <Calendar className="size-5 text-[#D9A15B] mx-auto mb-1" />
-                <p className="text-xs text-[#A89F91]">Date</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">{confirmed.date}</p>
+            {/* Embedded Reservation Slip Card */}
+            <div className="rounded-2xl bg-[#12100E] p-5 border border-[#D9A15B]/30 text-left space-y-4 shadow-inner">
+              <div className="flex items-center justify-between border-b border-[#D9A15B]/15 pb-3">
+                <div>
+                  <h5 className="font-display text-base font-bold text-[#F5EFE6]">BREW &amp; BEAN</h5>
+                  <p className="text-[10px] text-[#A89F91] uppercase tracking-wider">
+                    Table Reservation Voucher
+                  </p>
+                </div>
+                <span className="text-xs font-bold text-[#D9A15B] bg-[#D9A15B]/15 px-3 py-1 rounded-full border border-[#D9A15B]/30">
+                  {confirmed.id}
+                </span>
               </div>
-              <div className="h-8 w-px bg-[#D9A15B]/15" />
-              <div>
-                <Clock className="size-5 text-[#D9A15B] mx-auto mb-1" />
-                <p className="text-xs text-[#A89F91]">Time</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">{confirmed.time}</p>
+
+              {/* Guest & Timing Grid */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="block text-[10px] uppercase text-[#A89F91] tracking-wider">
+                    Guest Name
+                  </span>
+                  <strong className="text-[#F5EFE6] font-semibold">{name || "Valued Guest"}</strong>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase text-[#A89F91] tracking-wider">
+                    Phone Number
+                  </span>
+                  <strong className="text-[#F5EFE6] font-semibold">{phone || "+91 98200 12345"}</strong>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase text-[#A89F91] tracking-wider">
+                    Date &amp; Time
+                  </span>
+                  <strong className="text-[#D9A15B] font-bold">
+                    {confirmed.date} at {confirmed.time}
+                  </strong>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase text-[#A89F91] tracking-wider">
+                    Party Size
+                  </span>
+                  <strong className="text-[#F5EFE6] font-semibold">{guests} Guests</strong>
+                </div>
               </div>
-              <div className="h-8 w-px bg-[#D9A15B]/15" />
-              <div>
-                <Users className="size-5 text-[#D9A15B] mx-auto mb-1" />
-                <p className="text-xs text-[#A89F91]">Guests</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">{guests} People</p>
+
+              {/* Table & Location Info */}
+              <div className="pt-2 border-t border-[#D9A15B]/10 text-xs text-[#A89F91] space-y-1">
+                <div className="flex justify-between">
+                  <span>Assigned Table:</span>
+                  <strong className="text-[#F5EFE6]">Bandra Window Alcove (Table #08)</strong>
+                </div>
+                {notes && (
+                  <div className="flex justify-between text-emerald-400">
+                    <span>Special Request:</span>
+                    <span>"{notes}"</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="space-y-3 pt-2">
+            {/* Actions */}
+            <div className="space-y-3 pt-1">
               <button
                 type="button"
                 onClick={handleDownloadSlip}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full border border-[#D9A15B] bg-[#D9A15B]/15 text-[#D9A15B] font-bold text-sm hover:bg-[#D9A15B] hover:text-[#12100E] transition-all hover:scale-105 active:scale-95"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
               >
-                <Download className="size-4" />
-                Download Reservation Slip
+                <Download className="size-4 stroke-[2.5]" />
+                Download Reservation Slip File
               </button>
 
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full py-3.5 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-sm hover:bg-[#E5A958] transition-all hover:scale-105"
+                className="w-full py-2.5 text-xs text-[#A89F91] hover:text-[#F5EFE6] transition-colors text-center"
               >
                 Done &amp; Close
               </button>
