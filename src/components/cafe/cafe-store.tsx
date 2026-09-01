@@ -18,6 +18,7 @@ type CafeStore = {
   reserveOpen: boolean;
   historyOpen: boolean;
   orderHistory: PastOrder[];
+  previewOrder: PastOrder | null;
   total: number;
   totalCount: number;
   addItem: (item: MenuItem, qty?: number, isOffer?: boolean, offerTag?: string) => void;
@@ -33,6 +34,8 @@ type CafeStore = {
   closeReserve: () => void;
   openHistory: () => void;
   closeHistory: () => void;
+  openPreview: (order: PastOrder) => void;
+  closePreview: () => void;
 };
 
 const CafeContext = createContext<CafeStore | null>(null);
@@ -44,6 +47,7 @@ export function CafeProvider({ children }: { children: ReactNode }) {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [previewOrder, setPreviewOrder] = useState<PastOrder | null>(null);
 
   // Load Order History from LocalStorage
   const [orderHistory, setOrderHistory] = useState<PastOrder[]>(() => {
@@ -140,6 +144,7 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       reserveOpen,
       historyOpen,
       orderHistory,
+      previewOrder,
       total,
       totalCount,
       addItem,
@@ -158,6 +163,8 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       closeReserve: () => setReserveOpen(false),
       openHistory: () => setHistoryOpen(true),
       closeHistory: () => setHistoryOpen(false),
+      openPreview: (order: PastOrder) => setPreviewOrder(order),
+      closePreview: () => setPreviewOrder(null),
     }),
     [
       lines,
@@ -167,6 +174,7 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       reserveOpen,
       historyOpen,
       orderHistory,
+      previewOrder,
       total,
       totalCount,
       addItem,

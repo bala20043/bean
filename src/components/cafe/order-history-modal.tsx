@@ -1,10 +1,10 @@
 import { useCafe } from "./cafe-store";
 import { formatPrice } from "@/data/cafe";
 import { downloadOrderBill } from "@/lib/receipt-utils";
-import { X, History, Download, Coffee, ShoppingBag, ArrowRight } from "lucide-react";
+import { X, History, Download, Coffee, ShoppingBag, Eye } from "lucide-react";
 
 export function OrderHistoryModal() {
-  const { historyOpen, closeHistory, orderHistory, openCart } = useCafe();
+  const { historyOpen, closeHistory, orderHistory, openCart, openPreview } = useCafe();
 
   if (!historyOpen) return null;
 
@@ -104,14 +104,25 @@ export function OrderHistoryModal() {
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => downloadOrderBill(order)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D9A15B]/15 border border-[#D9A15B]/30 text-[#D9A15B] text-xs font-bold hover:bg-[#D9A15B] hover:text-[#12100E] transition-all hover:scale-105 active:scale-95"
-                  >
-                    <Download className="size-3.5" />
-                    Download Bill
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openPreview(order)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#26201C] border border-[#D9A15B]/20 text-[#F5EFE6] text-xs font-bold hover:bg-[#D9A15B]/20 hover:text-[#D9A15B] transition-all"
+                    >
+                      <Eye className="size-3.5 text-[#D9A15B]" />
+                      View Bill Slide
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => downloadOrderBill(order)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#D9A15B] text-[#12100E] text-xs font-bold hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
+                    >
+                      <Download className="size-3.5" />
+                      Download File
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
@@ -121,3 +132,4 @@ export function OrderHistoryModal() {
     </div>
   );
 }
+
