@@ -25,7 +25,8 @@ type CafeStore = {
   updateQty: (id: string, delta: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
-  addOrderToHistory: (order: PastOrder) => void;
+  deleteOrderFromHistory: (id: string) => void;
+  clearAllHistory: () => void;
   openCart: () => void;
   closeCart: () => void;
   openCheckout: () => void;
@@ -71,6 +72,16 @@ export function CafeProvider({ children }: { children: ReactNode }) {
 
   const addOrderToHistory = useCallback((newOrder: PastOrder) => {
     setOrderHistory((prev) => [newOrder, ...prev]);
+  }, []);
+
+  const deleteOrderFromHistory = useCallback((id: string) => {
+    setOrderHistory((prev) => prev.filter((o) => o.id !== id));
+    toast.info("Order deleted from history");
+  }, []);
+
+  const clearAllHistory = useCallback(() => {
+    setOrderHistory([]);
+    toast.info("All order history cleared");
   }, []);
 
   const triggerCartBounce = useCallback(() => {
@@ -152,6 +163,8 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       removeItem,
       clearCart,
       addOrderToHistory,
+      deleteOrderFromHistory,
+      clearAllHistory,
       openCart: () => setCartOpen(true),
       closeCart: () => setCartOpen(false),
       openCheckout: () => {
@@ -182,6 +195,8 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       removeItem,
       clearCart,
       addOrderToHistory,
+      deleteOrderFromHistory,
+      clearAllHistory,
     ],
   );
 

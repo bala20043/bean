@@ -1,10 +1,18 @@
 import { useCafe } from "./cafe-store";
 import { formatPrice } from "@/data/cafe";
 import { downloadOrderBill } from "@/lib/receipt-utils";
-import { X, History, Download, Coffee, ShoppingBag, Eye } from "lucide-react";
+import { X, History, Download, Coffee, ShoppingBag, Eye, Trash2 } from "lucide-react";
 
 export function OrderHistoryModal() {
-  const { historyOpen, closeHistory, orderHistory, openCart, openPreview } = useCafe();
+  const {
+    historyOpen,
+    closeHistory,
+    orderHistory,
+    openCart,
+    openPreview,
+    deleteOrderFromHistory,
+    clearAllHistory,
+  } = useCafe();
 
   if (!historyOpen) return null;
 
@@ -26,13 +34,25 @@ export function OrderHistoryModal() {
               {orderHistory.length}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={closeHistory}
-            className="rounded-full p-1.5 text-[#A89F91] hover:bg-[#26201C] hover:text-[#F5EFE6] transition-colors"
-          >
-            <X className="size-5" />
-          </button>
+
+          <div className="flex items-center gap-3">
+            {orderHistory.length > 0 && (
+              <button
+                type="button"
+                onClick={clearAllHistory}
+                className="text-xs font-semibold text-rose-400/80 hover:text-rose-400 hover:underline transition-colors"
+              >
+                Clear All
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={closeHistory}
+              className="rounded-full p-1.5 text-[#A89F91] hover:bg-[#26201C] hover:text-[#F5EFE6] transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -62,7 +82,7 @@ export function OrderHistoryModal() {
             orderHistory.map((order) => (
               <div
                 key={order.id}
-                className="rounded-2xl bg-[#26201C]/80 border border-[#D9A15B]/15 p-5 space-y-3 hover:border-[#D9A15B]/35 transition-all"
+                className="rounded-2xl bg-[#26201C]/80 border border-[#D9A15B]/15 p-5 space-y-3 hover:border-[#D9A15B]/35 transition-all group"
               >
                 <div className="flex items-center justify-between border-b border-[#D9A15B]/10 pb-3">
                   <div>
@@ -76,9 +96,15 @@ export function OrderHistoryModal() {
                     </div>
                     <p className="text-xs text-[#A89F91] mt-0.5">{order.date}</p>
                   </div>
-                  <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                    {order.status}
-                  </span>
+
+                  <button
+                    type="button"
+                    title="Delete this order"
+                    onClick={() => deleteOrderFromHistory(order.id)}
+                    className="p-1.5 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
 
                 {/* Items Summary */}
@@ -132,4 +158,5 @@ export function OrderHistoryModal() {
     </div>
   );
 }
+
 
