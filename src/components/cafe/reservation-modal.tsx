@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCafe } from "./cafe-store";
-import { X, Calendar, Clock, Users, User, Phone, CheckCircle2, Utensils } from "lucide-react";
+import { downloadReservationSlip } from "@/lib/receipt-utils";
+import { X, Calendar, Clock, Users, User, Phone, CheckCircle2, Utensils, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export function ReservationModal() {
@@ -45,6 +46,20 @@ export function ReservationModal() {
     setTime("19:00");
     setNotes("");
     closeReserve();
+  };
+
+  const handleDownloadSlip = () => {
+    if (!confirmed) return;
+    downloadReservationSlip({
+      id: confirmed.id,
+      customerName: name,
+      phone,
+      guests,
+      date: confirmed.date,
+      time: confirmed.time,
+      notes,
+      tableAssigned: "Bandra Window Alcove (Table #08)",
+    });
   };
 
   return (
@@ -110,13 +125,24 @@ export function ReservationModal() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleClose}
-              className="w-full py-3.5 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-sm hover:bg-[#E5A958] transition-all hover:scale-105"
-            >
-              Done & Close
-            </button>
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                onClick={handleDownloadSlip}
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full border border-[#D9A15B] bg-[#D9A15B]/15 text-[#D9A15B] font-bold text-sm hover:bg-[#D9A15B] hover:text-[#12100E] transition-all hover:scale-105 active:scale-95"
+              >
+                <Download className="size-4" />
+                Download Reservation Slip
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClose}
+                className="w-full py-3.5 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-sm hover:bg-[#E5A958] transition-all hover:scale-105"
+              >
+                Done &amp; Close
+              </button>
+            </div>
           </div>
         ) : (
           /* Reservation Form */

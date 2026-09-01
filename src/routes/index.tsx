@@ -10,6 +10,7 @@ import { OffersSection } from "@/components/cafe/offers-section";
 import { CartDrawer } from "@/components/cafe/cart-drawer";
 import { CheckoutModal } from "@/components/cafe/checkout-modal";
 import { ReservationModal } from "@/components/cafe/reservation-modal";
+import { OrderHistoryModal } from "@/components/cafe/order-history-modal";
 import { Toaster } from "sonner";
 
 export const Route = createFileRoute("/")({
@@ -85,9 +86,11 @@ function Index() {
         <CartDrawer />
         <CheckoutModal />
         <ReservationModal />
+        <OrderHistoryModal />
         <Toaster richColors theme="dark" position="bottom-right" />
       </div>
     </CafeProvider>
   );
 }
+
 

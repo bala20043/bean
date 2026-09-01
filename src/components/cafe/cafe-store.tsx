@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, useEffect, type ReactNode } from "react";
 import type { MenuItem } from "@/data/cafe";
+import type { PastOrder } from "@/lib/receipt-utils";
 import { toast } from "sonner";
 
 export type OrderLine = {
@@ -15,18 +16,23 @@ type CafeStore = {
   cartBounce: boolean;
   checkoutOpen: boolean;
   reserveOpen: boolean;
+  historyOpen: boolean;
+  orderHistory: PastOrder[];
   total: number;
   totalCount: number;
   addItem: (item: MenuItem, qty?: number, isOffer?: boolean, offerTag?: string) => void;
   updateQty: (id: string, delta: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
+  addOrderToHistory: (order: PastOrder) => void;
   openCart: () => void;
   closeCart: () => void;
   openCheckout: () => void;
   closeCheckout: () => void;
   openReserve: () => void;
   closeReserve: () => void;
+  openHistory: () => void;
+  closeHistory: () => void;
 };
 
 const CafeContext = createContext<CafeStore | null>(null);
@@ -37,30 +43,60 @@ export function CafeProvider({ children }: { children: ReactNode }) {
   const [cartBounce, setCartBounce] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Load Order History from LocalStorage
+  const [orderHistory, setOrderHistory] = useState<PastOrder[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("brew_bean_orders");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Save Order History to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("brew_bean_orders", JSON.stringify(orderHistory));
+    } catch (e) {
+      console.error("Failed to save orders", e);
+    }
+  }, [orderHistory]);
+
+  const addOrderToHistory = useCallback((newOrder: PastOrder) => {
+    setOrderHistory((prev) => [newOrder, ...prev]);
+  }, []);
 
   const triggerCartBounce = useCallback(() => {
     setCartBounce(true);
     setTimeout(() => setCartBounce(false), 650);
   }, []);
 
-  const addItem = useCallback((item: MenuItem, qty = 1, isOffer = false, offerTag = "") => {
-    setLines((prev) => {
-      const existing = prev.find((line) => line.item.id === item.id);
-      if (existing) {
-        return prev.map((line) =>
-          line.item.id === item.id ? { ...line, qty: line.qty + qty } : line,
-        );
-      }
-      return [...prev, { item, qty, isOffer, offerTag }];
-    });
+  const addItem = useCallback(
+    (item: MenuItem, qty = 1, isOffer = false, offerTag = "") => {
+      setLines((prev) => {
+        const existing = prev.find((line) => line.item.id === item.id);
+        if (existing) {
+          return prev.map((line) =>
+            line.item.id === item.id ? { ...line, qty: line.qty + qty } : line,
+          );
+        }
+        return [...prev, { item, qty, isOffer, offerTag }];
+      });
 
-    triggerCartBounce();
+      triggerCartBounce();
 
-    toast.success(`Added ${item.name} to order`, {
-      description: isOffer ? `Special Offer "${offerTag}" applied!` : `₹${item.price * qty} · View cart in header`,
-      duration: 3000,
-    });
-  }, [triggerCartBounce]);
+      toast.success(`Added ${item.name} to order`, {
+        description: isOffer
+          ? `Special Offer "${offerTag}" applied!`
+          : `₹${item.price * qty} · View cart in header`,
+        duration: 3000,
+      });
+    },
+    [triggerCartBounce],
+  );
 
   const updateQty = useCallback((id: string, delta: number) => {
     setLines((prev) =>
@@ -102,12 +138,15 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       cartBounce,
       checkoutOpen,
       reserveOpen,
+      historyOpen,
+      orderHistory,
       total,
       totalCount,
       addItem,
       updateQty,
       removeItem,
       clearCart,
+      addOrderToHistory,
       openCart: () => setCartOpen(true),
       closeCart: () => setCartOpen(false),
       openCheckout: () => {
@@ -117,6 +156,8 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       closeCheckout: () => setCheckoutOpen(false),
       openReserve: () => setReserveOpen(true),
       closeReserve: () => setReserveOpen(false),
+      openHistory: () => setHistoryOpen(true),
+      closeHistory: () => setHistoryOpen(false),
     }),
     [
       lines,
@@ -124,12 +165,15 @@ export function CafeProvider({ children }: { children: ReactNode }) {
       cartBounce,
       checkoutOpen,
       reserveOpen,
+      historyOpen,
+      orderHistory,
       total,
       totalCount,
       addItem,
       updateQty,
       removeItem,
       clearCart,
+      addOrderToHistory,
     ],
   );
 
@@ -141,3 +185,4 @@ export function useCafe() {
   if (!ctx) throw new Error("useCafe must be used within CafeProvider");
   return ctx;
 }
+

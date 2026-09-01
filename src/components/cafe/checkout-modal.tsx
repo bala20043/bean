@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useCafe } from "./cafe-store";
 import { formatPrice } from "@/data/cafe";
-import { X, CheckCircle2, Clock, MapPin, Phone, User, Coffee } from "lucide-react";
+import { downloadOrderBill, type PastOrder } from "@/lib/receipt-utils";
+import { X, CheckCircle2, Clock, MapPin, Phone, User, Coffee, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export function CheckoutModal() {
-  const { checkoutOpen, closeCheckout, lines, total, clearCart } = useCafe();
+  const { checkoutOpen, closeCheckout, lines, total, clearCart, addOrderToHistory } = useCafe();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [orderType, setOrderType] = useState<"dine-in" | "takeaway">("dine-in");
   const [tableNo, setTableNo] = useState("");
-  const [submittedOrder, setSubmittedOrder] = useState<{ id: string; time: string } | null>(null);
+  const [lastPlacedOrder, setLastPlacedOrder] = useState<PastOrder | null>(null);
 
   if (!checkoutOpen) return null;
 
@@ -22,10 +23,33 @@ export function CheckoutModal() {
     }
 
     const orderId = `BB-${Math.floor(1000 + Math.random() * 9000)}`;
-    setSubmittedOrder({
+    const subtotalAmount = total;
+    const taxAmount = Math.round(total * 0.05);
+    const grandTotal = subtotalAmount + taxAmount;
+
+    const newOrder: PastOrder = {
       id: orderId,
-      time: "12–15 mins",
-    });
+      date: new Date().toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+      customerName: name,
+      phone,
+      orderType,
+      tableNo: tableNo || "Table #04",
+      items: lines.map((l) => ({
+        name: l.item.name,
+        qty: l.qty,
+        price: l.item.price,
+      })),
+      subtotal: subtotalAmount,
+      tax: taxAmount,
+      total: grandTotal,
+      status: "Preparing",
+    };
+
+    setLastPlacedOrder(newOrder);
+    addOrderToHistory(newOrder);
 
     toast.success("Order Placed Successfully! ☕", {
       description: `Order ${orderId} has been sent to our barista counter.`,
@@ -35,7 +59,7 @@ export function CheckoutModal() {
   };
 
   const handleClose = () => {
-    setSubmittedOrder(null);
+    setLastPlacedOrder(null);
     setName("");
     setPhone("");
     setTableNo("");
@@ -56,7 +80,7 @@ export function CheckoutModal() {
           <div className="flex items-center gap-2">
             <Coffee className="size-5 text-[#D9A15B]" />
             <h3 className="font-display text-xl font-bold">
-              {submittedOrder ? "Order Confirmed!" : "Complete Your Order"}
+              {lastPlacedOrder ? "Order Confirmed!" : "Complete Your Order"}
             </h3>
           </div>
           <button
@@ -68,7 +92,7 @@ export function CheckoutModal() {
           </button>
         </div>
 
-        {submittedOrder ? (
+        {lastPlacedOrder ? (
           /* Success Screen */
           <div className="p-8 text-center space-y-5">
             <div className="mx-auto size-16 rounded-full bg-[#D9A15B]/20 border border-[#D9A15B]/40 flex items-center justify-center text-[#D9A15B] animate-bounce">
@@ -77,7 +101,7 @@ export function CheckoutModal() {
 
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-[#D9A15B]">
-                Order #{submittedOrder.id}
+                Order #{lastPlacedOrder.id}
               </span>
               <h4 className="mt-1 font-display text-2xl font-bold">Your Coffee is Brewing!</h4>
               <p className="mt-2 text-sm text-[#A89F91] max-w-xs mx-auto">
@@ -89,23 +113,34 @@ export function CheckoutModal() {
               <div>
                 <Clock className="size-5 text-[#D9A15B] mx-auto mb-1" />
                 <p className="text-xs text-[#A89F91]">Est. Preparation</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">{submittedOrder.time}</p>
+                <p className="text-sm font-bold text-[#F5EFE6]">12–15 mins</p>
               </div>
               <div className="h-8 w-px bg-[#D9A15B]/15" />
               <div>
                 <MapPin className="size-5 text-[#D9A15B] mx-auto mb-1" />
                 <p className="text-xs text-[#A89F91]">Location</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">Brew & Bean, Bandra</p>
+                <p className="text-sm font-bold text-[#F5EFE6]">Brew &amp; Bean, Bandra</p>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleClose}
-              className="w-full py-3.5 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-sm hover:bg-[#E5A958] transition-all hover:scale-105"
-            >
-              Done & Return to Site
-            </button>
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                onClick={() => downloadOrderBill(lastPlacedOrder)}
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full border border-[#D9A15B] bg-[#D9A15B]/15 text-[#D9A15B] font-bold text-sm hover:bg-[#D9A15B] hover:text-[#12100E] transition-all hover:scale-105 active:scale-95"
+              >
+                <Download className="size-4" />
+                Download Tax Bill / Receipt
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClose}
+                className="w-full py-3.5 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-sm hover:bg-[#E5A958] transition-all hover:scale-105"
+              >
+                Done &amp; Return to Site
+              </button>
+            </div>
           </div>
         ) : (
           /* Checkout Form */

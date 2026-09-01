@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, History } from "lucide-react";
 import { Logo } from "./logo";
 import { useCafe } from "./cafe-store";
 
@@ -12,7 +12,7 @@ const links = [
 ];
 
 export function SiteNav() {
-  const { openCart, openReserve, totalCount, cartBounce } = useCafe();
+  const { openCart, openReserve, openHistory, totalCount, cartBounce, orderHistory } = useCafe();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -58,7 +58,22 @@ export function SiteNav() {
         </div>
 
         {/* Actions */}
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2.5">
+          {/* Order History Button */}
+          <button
+            type="button"
+            onClick={openHistory}
+            title="View Order History & Download Bills"
+            className="relative grid size-11 place-items-center rounded-full border border-[#D9A15B]/25 bg-[#1C1815] text-[#F5EFE6] transition-all hover:border-[#D9A15B] hover:bg-[#26201C] active:scale-95"
+          >
+            <History className="size-5 text-[#D9A15B]" />
+            {orderHistory.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-[#12100E]">
+                {orderHistory.length}
+              </span>
+            )}
+          </button>
+
           {/* Cart Icon Button */}
           <button
             type="button"
