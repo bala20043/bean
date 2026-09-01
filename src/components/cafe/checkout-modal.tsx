@@ -93,10 +93,10 @@ export function CheckoutModal() {
         </div>
 
         {lastPlacedOrder ? (
-          /* Success Screen */
-          <div className="p-8 text-center space-y-5">
-            <div className="mx-auto size-16 rounded-full bg-[#D9A15B]/20 border border-[#D9A15B]/40 flex items-center justify-center text-[#D9A15B] animate-bounce">
-              <CheckCircle2 className="size-9" />
+          /* Confirmation Screen with Embedded Visual Order Bill */
+          <div className="p-6 text-center space-y-4">
+            <div className="mx-auto size-14 rounded-full bg-[#D9A15B]/20 border border-[#D9A15B]/40 flex items-center justify-center text-[#D9A15B] animate-bounce">
+              <CheckCircle2 className="size-8" />
             </div>
 
             <div>
@@ -104,39 +104,98 @@ export function CheckoutModal() {
                 Order #{lastPlacedOrder.id}
               </span>
               <h4 className="mt-1 font-display text-2xl font-bold">Your Coffee is Brewing!</h4>
-              <p className="mt-2 text-sm text-[#A89F91] max-w-xs mx-auto">
-                We've received your order and our baristas are crafting your drinks with love.
-              </p>
             </div>
 
-            <div className="rounded-2xl bg-[#26201C] p-4 border border-[#D9A15B]/15 flex items-center justify-around text-center">
-              <div>
-                <Clock className="size-5 text-[#D9A15B] mx-auto mb-1" />
-                <p className="text-xs text-[#A89F91]">Est. Preparation</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">12–15 mins</p>
+            {/* Embedded Order Tax Bill Card */}
+            <div className="rounded-2xl bg-[#12100E] p-5 border border-[#D9A15B]/30 text-left space-y-4 shadow-inner">
+              <div className="flex items-center justify-between border-b border-[#D9A15B]/15 pb-3">
+                <div>
+                  <h5 className="font-display text-base font-bold text-[#F5EFE6]">BREW &amp; BEAN</h5>
+                  <p className="text-[10px] text-[#A89F91] uppercase tracking-wider">
+                    Official Tax Invoice
+                  </p>
+                </div>
+                <span className="text-xs font-bold text-[#D9A15B] bg-[#D9A15B]/15 px-3 py-1 rounded-full border border-[#D9A15B]/30">
+                  {lastPlacedOrder.id}
+                </span>
               </div>
-              <div className="h-8 w-px bg-[#D9A15B]/15" />
-              <div>
-                <MapPin className="size-5 text-[#D9A15B] mx-auto mb-1" />
-                <p className="text-xs text-[#A89F91]">Location</p>
-                <p className="text-sm font-bold text-[#F5EFE6]">Brew &amp; Bean, Bandra</p>
+
+              {/* Order & Customer Info */}
+              <div className="grid grid-cols-2 gap-3 text-xs text-[#A89F91]">
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider">Customer</span>
+                  <strong className="text-[#F5EFE6] font-semibold">{lastPlacedOrder.customerName}</strong>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider">Phone</span>
+                  <strong className="text-[#F5EFE6] font-semibold">{lastPlacedOrder.phone}</strong>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider">Order Type</span>
+                  <strong className="text-[#D9A15B] font-semibold">
+                    {lastPlacedOrder.orderType === "dine-in"
+                      ? `Dine-In (${lastPlacedOrder.tableNo})`
+                      : "Takeaway Pickup"}
+                  </strong>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider">Time</span>
+                  <strong className="text-[#F5EFE6] font-semibold">{lastPlacedOrder.date}</strong>
+                </div>
+              </div>
+
+              {/* Itemized Table */}
+              <div className="space-y-1.5 pt-2 border-t border-[#D9A15B]/15">
+                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-[#D9A15B] pb-1 border-b border-[#D9A15B]/10">
+                  <span>Item</span>
+                  <span>Amount</span>
+                </div>
+                <div className="space-y-1 max-h-32 overflow-y-auto text-xs pr-1">
+                  {lastPlacedOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between">
+                      <span className="text-[#F5EFE6]">
+                        <span className="text-[#D9A15B] font-bold">{item.qty}x</span> {item.name}
+                      </span>
+                      <span className="font-bold text-[#F5EFE6]">
+                        {formatPrice(item.price * item.qty)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Calculation Summary */}
+              <div className="pt-3 border-t border-2 border-[#D9A15B]/20 text-xs space-y-1">
+                <div className="flex justify-between text-[#A89F91]">
+                  <span>Subtotal</span>
+                  <span>{formatPrice(lastPlacedOrder.subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-[#A89F91]">
+                  <span>GST (5%)</span>
+                  <span>{formatPrice(lastPlacedOrder.tax)}</span>
+                </div>
+                <div className="flex justify-between text-sm font-bold text-[#D9A15B] pt-2 border-t border-[#D9A15B]/15">
+                  <span>TOTAL AMOUNT PAID</span>
+                  <span>{formatPrice(lastPlacedOrder.total)}</span>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3 pt-2">
+            {/* Actions */}
+            <div className="space-y-2.5 pt-1">
               <button
                 type="button"
                 onClick={() => downloadOrderBill(lastPlacedOrder)}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full border border-[#D9A15B] bg-[#D9A15B]/15 text-[#D9A15B] font-bold text-sm hover:bg-[#D9A15B] hover:text-[#12100E] transition-all hover:scale-105 active:scale-95"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
               >
-                <Download className="size-4" />
-                Download Tax Bill / Receipt
+                <Download className="size-4 stroke-[2.5]" />
+                Download Tax Bill File
               </button>
 
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full py-3.5 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-sm hover:bg-[#E5A958] transition-all hover:scale-105"
+                className="w-full py-2 text-xs text-[#A89F91] hover:text-[#F5EFE6] transition-colors text-center"
               >
                 Done &amp; Return to Site
               </button>
