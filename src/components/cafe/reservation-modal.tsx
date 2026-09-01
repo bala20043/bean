@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCafe } from "./cafe-store";
 import { downloadReservationSlip } from "@/lib/receipt-utils";
-import { X, Calendar, Clock, Users, User, Phone, CheckCircle2, Utensils, Download } from "lucide-react";
+import { X, Calendar, Clock, Users, User, Phone, CheckCircle2, Utensils, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 export function ReservationModal() {
@@ -168,8 +168,8 @@ export function ReservationModal() {
                 onClick={handleDownloadSlip}
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
               >
-                <Download className="size-4 stroke-[2.5]" />
-                Download Reservation Slip File
+                <Printer className="size-4 stroke-[2.5]" />
+                Print / Save PDF Slip
               </button>
 
               <button

@@ -24,7 +24,7 @@ export type ReservationDetails = {
 };
 
 /**
- * Directly downloads a styled HTML/PDF printable receipt file without popup blocker glitches
+ * Triggers browser Print / Save to PDF dialog directly (no .html file saved!)
  */
 export function downloadOrderBill(order: PastOrder) {
   const receiptHtml = `
@@ -32,35 +32,35 @@ export function downloadOrderBill(order: PastOrder) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tax_Invoice_${order.id}</title>
+  <title>Bill_${order.id}</title>
   <style>
+    @page { size: auto; margin: 15mm; }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #12100E;
-      color: #F5EFE6;
-      padding: 30px;
+      background: #ffffff;
+      color: #12100E;
+      padding: 20px;
       margin: 0;
     }
     .receipt-box {
       max-width: 480px;
       margin: 0 auto;
-      background: #1C1815;
-      border: 1px solid #D9A15B;
+      background: #ffffff;
+      border: 2px solid #12100E;
       padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      border-radius: 16px;
     }
     .brand {
       text-align: center;
       font-size: 26px;
       font-weight: 800;
-      color: #D9A15B;
+      color: #12100E;
       letter-spacing: 1px;
     }
     .sub-brand {
       text-align: center;
       font-size: 11px;
-      color: #A89F91;
+      color: #555555;
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 25px;
@@ -69,15 +69,15 @@ export function downloadOrderBill(order: PastOrder) {
       width: 100%;
       margin-bottom: 20px;
       font-size: 13px;
-      color: #A89F91;
-      border-bottom: 1px dashed rgba(217,161,91,0.25);
+      color: #333333;
+      border-bottom: 1px dashed #aaaaaa;
       padding-bottom: 15px;
     }
     .info-table td { padding: 4px 0; }
     .info-table td.right {
       text-align: right;
-      color: #F5EFE6;
-      font-weight: 600;
+      color: #12100E;
+      font-weight: 700;
     }
     .item-table {
       width: 100%;
@@ -89,22 +89,22 @@ export function downloadOrderBill(order: PastOrder) {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #D9A15B;
-      border-bottom: 1px solid rgba(217,161,91,0.2);
+      color: #12100E;
+      border-bottom: 2px solid #12100E;
       padding-bottom: 8px;
     }
     .item-table td {
       padding: 10px 0;
       font-size: 13px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid #eeeeee;
     }
     .item-table td.price {
       text-align: right;
       font-weight: 700;
-      color: #F5EFE6;
+      color: #12100E;
     }
     .total-section {
-      border-top: 2px solid #D9A15B;
+      border-top: 2px solid #12100E;
       padding-top: 15px;
       margin-top: 15px;
     }
@@ -113,20 +113,20 @@ export function downloadOrderBill(order: PastOrder) {
       justify-content: space-between;
       font-size: 13px;
       margin-bottom: 6px;
-      color: #A89F91;
+      color: #444444;
     }
     .grand-total {
       font-size: 18px;
       font-weight: 800;
-      color: #D9A15B;
+      color: #12100E;
       margin-top: 10px;
     }
     .footer-note {
       text-align: center;
       margin-top: 25px;
       font-size: 11px;
-      color: #A89F91;
-      border-top: 1px dashed rgba(217,161,91,0.25);
+      color: #666666;
+      border-top: 1px dashed #aaaaaa;
       padding-top: 15px;
       line-height: 1.5;
     }
@@ -195,29 +195,50 @@ export function downloadOrderBill(order: PastOrder) {
     </div>
 
     <div class="footer-note">
-      Thank you for ordering at Brew &amp; Bean!<br>
+      Thank you for visiting Brew &amp; Bean!<br>
       14 Marina Walk, Bandra West, Mumbai 400050<br>
       GSTIN: 27AAAAA0000A1Z5 · Support: hello@brewandbean.in
     </div>
   </div>
+
+  <script>
+    window.onload = function() {
+      window.print();
+      setTimeout(function() { window.close(); }, 500);
+    };
+  </script>
 </body>
 </html>
   `;
 
-  // Create Blob & Direct Download Link
-  const blob = new Blob([receiptHtml], { type: "text/html;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `Bill_${order.id}.html`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  const printWindow = window.open("", "_blank", "width=600,height=700");
+  if (printWindow) {
+    printWindow.document.write(receiptHtml);
+    printWindow.document.close();
+  } else {
+    // Fallback if popup blocked: use iframe to trigger print to PDF dialog
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(receiptHtml);
+      doc.close();
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }
+  }
 }
 
 /**
- * Directly downloads Table Reservation Slip Voucher
+ * Triggers browser Print / Save to PDF for Table Reservation Voucher (no .html file saved!)
  */
 export function downloadReservationSlip(res: ReservationDetails) {
   const slipHtml = `
@@ -227,27 +248,27 @@ export function downloadReservationSlip(res: ReservationDetails) {
   <meta charset="UTF-8">
   <title>Reservation_${res.id}</title>
   <style>
+    @page { size: auto; margin: 15mm; }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #12100E;
-      color: #F5EFE6;
-      padding: 30px;
+      background: #ffffff;
+      color: #12100E;
+      padding: 20px;
       margin: 0;
     }
     .slip-box {
       max-width: 460px;
       margin: 0 auto;
-      background: #1C1815;
-      border: 2px solid #D9A15B;
+      background: #ffffff;
+      border: 2px solid #12100E;
       padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(217,161,91,0.25);
+      border-radius: 16px;
       text-align: center;
     }
     .header-tag {
       display: inline-block;
-      background: rgba(217,161,91,0.15);
-      color: #D9A15B;
+      background: #eeeeee;
+      color: #12100E;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
@@ -259,22 +280,22 @@ export function downloadReservationSlip(res: ReservationDetails) {
     .title {
       font-size: 24px;
       font-weight: 800;
-      color: #F5EFE6;
+      color: #12100E;
       margin-bottom: 5px;
     }
     .cafe-name {
       font-size: 13px;
-      color: #D9A15B;
+      color: #666666;
       margin-bottom: 25px;
     }
     .grid-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 15px;
-      background: #12100E;
+      background: #f9f9f9;
       padding: 18px;
       border-radius: 14px;
-      border: 1px solid rgba(217,161,91,0.2);
+      border: 1px solid #dddddd;
       margin-bottom: 25px;
       text-align: left;
     }
@@ -282,29 +303,29 @@ export function downloadReservationSlip(res: ReservationDetails) {
       display: block;
       font-size: 10px;
       text-transform: uppercase;
-      color: #A89F91;
+      color: #666666;
       letter-spacing: 1px;
       margin-bottom: 3px;
     }
     .info-item span {
       font-size: 13px;
       font-weight: 700;
-      color: #F5EFE6;
+      color: #12100E;
     }
     .notes-box {
-      background: rgba(255,255,255,0.03);
+      background: #f0f0f0;
       padding: 12px;
       border-radius: 10px;
       font-size: 12px;
-      color: #A89F91;
+      color: #444444;
       margin-bottom: 25px;
       text-align: left;
     }
     .guidelines {
       font-size: 11px;
-      color: #A89F91;
+      color: #666666;
       line-height: 1.5;
-      border-top: 1px dashed rgba(217,161,91,0.25);
+      border-top: 1px dashed #aaaaaa;
       padding-top: 15px;
     }
   </style>
@@ -318,7 +339,7 @@ export function downloadReservationSlip(res: ReservationDetails) {
     <div class="grid-info">
       <div class="info-item">
         <label>Pass Code</label>
-        <span style="color:#D9A15B;">${res.id}</span>
+        <span style="color:#12100E;">${res.id}</span>
       </div>
       <div class="info-item">
         <label>Guest Name</label>
@@ -354,19 +375,40 @@ export function downloadReservationSlip(res: ReservationDetails) {
       • 14 Marina Walk, Bandra West, Mumbai 400050 · Phone: +91 98200 45678
     </div>
   </div>
+
+  <script>
+    window.onload = function() {
+      window.print();
+      setTimeout(function() { window.close(); }, 500);
+    };
+  </script>
 </body>
 </html>
   `;
 
-  // Create Blob & Direct Download Link
-  const blob = new Blob([slipHtml], { type: "text/html;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `Reservation_${res.id}.html`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  const printWindow = window.open("", "_blank", "width=600,height=700");
+  if (printWindow) {
+    printWindow.document.write(slipHtml);
+    printWindow.document.close();
+  } else {
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(slipHtml);
+      doc.close();
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }
+  }
 }
+
 

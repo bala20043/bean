@@ -1,7 +1,7 @@
 import { useCafe } from "./cafe-store";
 import { formatPrice } from "@/data/cafe";
 import { downloadOrderBill } from "@/lib/receipt-utils";
-import { X, Download, FileText, CheckCircle2, Store } from "lucide-react";
+import { X, Printer, FileText, Store } from "lucide-react";
 
 export function BillPreviewModal() {
   const { previewOrder, closePreview } = useCafe();
@@ -111,8 +111,8 @@ export function BillPreviewModal() {
               onClick={() => downloadOrderBill(previewOrder)}
               className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
             >
-              <Download className="size-4 stroke-[2.5]" />
-              Click to Download Bill File
+              <Printer className="size-4 stroke-[2.5]" />
+              Print / Save as PDF Bill
             </button>
 
             <button
@@ -128,3 +128,4 @@ export function BillPreviewModal() {
     </div>
   );
 }
+

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useCafe } from "./cafe-store";
 import { formatPrice } from "@/data/cafe";
 import { downloadOrderBill, type PastOrder } from "@/lib/receipt-utils";
-import { X, CheckCircle2, Clock, MapPin, Phone, User, Coffee, Download } from "lucide-react";
+import { X, CheckCircle2, Clock, MapPin, Phone, User, Coffee, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 export function CheckoutModal() {
@@ -188,8 +188,8 @@ export function CheckoutModal() {
                 onClick={() => downloadOrderBill(lastPlacedOrder)}
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
               >
-                <Download className="size-4 stroke-[2.5]" />
-                Download Tax Bill File
+                <Printer className="size-4 stroke-[2.5]" />
+                Print / Save PDF Bill
               </button>
 
               <button

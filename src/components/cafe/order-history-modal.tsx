@@ -1,7 +1,7 @@
 import { useCafe } from "./cafe-store";
 import { formatPrice } from "@/data/cafe";
 import { downloadOrderBill } from "@/lib/receipt-utils";
-import { X, History, Download, Coffee, ShoppingBag, Eye, Trash2 } from "lucide-react";
+import { X, History, Printer, Coffee, ShoppingBag, Eye, Trash2 } from "lucide-react";
 
 export function OrderHistoryModal() {
   const {
@@ -145,8 +145,8 @@ export function OrderHistoryModal() {
                       onClick={() => downloadOrderBill(order)}
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#D9A15B] text-[#12100E] text-xs font-bold hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
                     >
-                      <Download className="size-3.5" />
-                      Download File
+                      <Printer className="size-3.5" />
+                      Print / PDF
                     </button>
                   </div>
                 </div>
