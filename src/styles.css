@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Brew & Bean design system — "Teal Lagoon Café".
- * All colors are oklch tokens. Never hardcode colors in components.
+ * Brew & Bean design system — "Dark Moody Espresso Coffeehouse".
+ * Deep rich dark espresso tones, warm amber gold accents (#D9A15B), soft cream text (#F5EFE6).
  */
 
 @theme inline {
@@ -40,19 +40,17 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
 
-  --color-lagoon: var(--lagoon);
-  --color-lagoon-deep: var(--lagoon-deep);
-  --color-aqua: var(--aqua);
-  --color-coral: var(--coral);
-  --color-foam: var(--foam);
-  --color-sand: var(--sand);
-  --color-ink: var(--ink);
+  --color-amber-gold: var(--amber-gold);
+  --color-amber-light: var(--amber-light);
+  --color-espresso-dark: var(--espresso-dark);
+  --color-espresso-card: var(--espresso-card);
+  --color-cream-text: var(--cream-text);
+  --color-cream-muted: var(--cream-muted);
 
-  --shadow-soft: 0 2px 10px -4px oklch(0.3 0.05 210 / 0.15);
-  --shadow-lift: 0 22px 45px -22px oklch(0.3 0.05 210 / 0.45);
-  --shadow-panel: 0 30px 70px -25px oklch(0.3 0.05 210 / 0.55);
+  --shadow-soft: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 30px -5px rgba(217, 161, 91, 0.3);
 }
 
 :root {
@@ -61,33 +59,32 @@
   --font-display-family: "Fraunces", ui-serif, Georgia, serif;
   --font-sans-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
 
-  --lagoon: oklch(0.532 0.0932 204.5);
-  --lagoon-deep: oklch(0.312 0.0561 211.5);
-  --aqua: oklch(0.7 0.1163 202.7);
-  --coral: oklch(0.734 0.153 39.5);
-  --foam: oklch(0.981 0.0068 191);
-  --sand: oklch(0.955 0.0121 187);
-  --ink: oklch(0.312 0.0561 211.5);
+  --espresso-dark: #12100E;
+  --espresso-card: #1C1815;
+  --amber-gold: #D9A15B;
+  --amber-light: #E5A958;
+  --cream-text: #F5EFE6;
+  --cream-muted: #A89F91;
 
-  --background: var(--foam);
-  --foreground: var(--ink);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--ink);
-  --primary: var(--lagoon);
-  --primary-foreground: var(--foam);
-  --secondary: var(--sand);
-  --secondary-foreground: var(--lagoon-deep);
-  --muted: var(--sand);
-  --muted-foreground: oklch(0.52 0.028 211);
-  --accent: var(--coral);
-  --accent-foreground: var(--foam);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.532 0.0932 204.5 / 0.14);
-  --input: oklch(0.532 0.0932 204.5 / 0.22);
-  --ring: var(--lagoon);
+  --background: var(--espresso-dark);
+  --foreground: var(--cream-text);
+  --card: var(--espresso-card);
+  --card-foreground: var(--cream-text);
+  --popover: #1C1815;
+  --popover-foreground: var(--cream-text);
+  --primary: var(--amber-gold);
+  --primary-foreground: #12100E;
+  --secondary: #26201C;
+  --secondary-foreground: var(--cream-text);
+  --muted: #26201C;
+  --muted-foreground: var(--cream-muted);
+  --accent: var(--amber-gold);
+  --accent-foreground: #12100E;
+  --destructive: #E55B5B;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(217, 161, 91, 0.15);
+  --input: rgba(217, 161, 91, 0.2);
+  --ring: var(--amber-gold);
 }
 
 @layer base {
@@ -98,11 +95,12 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    background-color: var(--espresso-dark);
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--espresso-dark);
+    color: var(--cream-text);
     font-family: var(--font-sans-family);
     -webkit-font-smoothing: antialiased;
   }
@@ -119,9 +117,9 @@
     border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: var(--shadow-lift);
-    border-color: var(--color-lagoon);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lift), var(--shadow-glow);
+    border-color: rgba(217, 161, 91, 0.4);
   }
 }
 
@@ -130,7 +128,21 @@
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--color-lagoon);
+  color: var(--amber-gold);
+}
+
+@utility glass-panel {
+  background: rgba(28, 24, 21, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(217, 161, 91, 0.2);
+}
+
+@utility glass-chip {
+  background: rgba(245, 239, 230, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 239, 230, 0.15);
 }
 
 @keyframes float {
@@ -144,8 +156,14 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.08); }
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
+@keyframes cart-bounce {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.35) rotate(-10deg); }
+  60% { transform: scale(1.1) rotate(5deg); }
 }
 
 .animate-float {
@@ -159,4 +177,9 @@
 .animate-pulse-glow {
   animation: pulse-glow 5s ease-in-out infinite;
 }
+
+.animate-cart-bounce {
+  animation: cart-bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 

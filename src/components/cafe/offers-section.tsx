@@ -1,24 +1,43 @@
-import { toast } from "sonner";
-import { offers } from "@/data/cafe";
-import { Sparkles, Tag } from "lucide-react";
+import { offers, menuItems } from "@/data/cafe";
+import { useCafe } from "./cafe-store";
+import { Sparkles, Tag, Plus, Check } from "lucide-react";
 
 export function OffersSection() {
+  const { addItem } = useCafe();
+
+  const handleClaimOffer = (offer: (typeof offers)[0]) => {
+    // Map offer to a custom cart item
+    const offerItem = {
+      id: `offer-${offer.id}`,
+      name: offer.title,
+      description: offer.description,
+      price: offer.id === "morning" ? 220 : offer.id === "weekend" ? 340 : 150,
+      category: "coffee" as const,
+      image: menuItems[0].image,
+    };
+
+    addItem(offerItem, 1, true, offer.tag);
+  };
+
   return (
-    <section id="offers" className="relative overflow-hidden bg-gradient-to-br from-lagoon via-lagoon-deep to-ink py-20 text-foam md:py-28">
-      <div className="pointer-events-none absolute -bottom-20 -left-20 size-[500px] rounded-full bg-aqua/20 blur-3xl animate-pulse-glow" />
-      <div className="pointer-events-none absolute top-10 right-10 size-[350px] rounded-full bg-coral/15 blur-3xl animate-pulse-glow" />
+    <section
+      id="offers"
+      className="relative overflow-hidden bg-gradient-to-b from-[#161311] via-[#12100E] to-[#1C1815] py-20 text-[#F5EFE6] md:py-28 border-t border-[#D9A15B]/10"
+    >
+      <div className="pointer-events-none absolute -bottom-20 -left-20 size-[500px] rounded-full bg-[#D9A15B]/10 blur-[140px] animate-pulse-glow" />
+      <div className="pointer-events-none absolute top-10 right-10 size-[350px] rounded-full bg-[#8C5D27]/15 blur-[120px] animate-pulse-glow" />
 
       <div className="relative mx-auto max-w-7xl px-5 md:px-8">
-        <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.25em] text-aqua">
-            <Sparkles className="size-3.5" />
-            Special Offers
+        <div className="text-center space-y-2">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.25em] text-[#D9A15B]">
+            <Sparkles className="size-3.5 text-[#D9A15B]" />
+            Special Offers & Combos
           </span>
-          <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight md:text-5xl">
+          <h2 className="font-display text-4xl font-bold tracking-tight text-[#F5EFE6] md:text-5xl">
             Brew More, Save More
           </h2>
-          <p className="mt-3 text-sm text-foam/75">
-            Exclusive deals designed for our coffee lovers & regular guests
+          <p className="text-sm text-[#A89F91]">
+            Curated daily combos and exclusive savings for our Bandra coffee lovers
           </p>
         </div>
 
@@ -26,31 +45,41 @@ export function OffersSection() {
           {offers.map((offer) => (
             <article
               key={offer.id}
-              className="group relative flex flex-col justify-between rounded-3xl border border-foam/20 bg-foam/10 p-7 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-aqua/50 hover:bg-foam/15 hover:shadow-2xl"
+              className="group relative flex flex-col justify-between rounded-3xl border border-[#D9A15B]/25 bg-[#1C1815]/90 p-7 shadow-2xl backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-[#D9A15B] hover:shadow-glow"
             >
-              <div>
-                <span className="inline-flex items-center gap-1 rounded-full border border-coral/30 bg-coral/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-coral">
-                  <Tag className="size-3" />
-                  {offer.tag}
-                </span>
-                <h3 className="mt-4 font-display text-2xl font-semibold text-foam group-hover:text-aqua transition-colors">
-                  {offer.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-foam/80">{offer.description}</p>
+              {/* Ribbon Badge */}
+              <div className="absolute -top-3 right-6 rounded-full bg-[#D9A15B] px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-[#12100E] shadow-md flex items-center gap-1">
+                <Tag className="size-3 stroke-[2.5]" />
+                {offer.tag} Special
               </div>
 
-              <div className="mt-6 border-t border-foam/15 pt-5">
-                <p className="font-display text-3xl font-bold text-aqua drop-shadow-sm">{offer.highlight}</p>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#D9A15B]">
+                  {offer.tag} Combo
+                </span>
+                <h3 className="mt-3 font-display text-2xl font-bold text-[#F5EFE6] group-hover:text-[#D9A15B] transition-colors">
+                  {offer.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#A89F91]">
+                  {offer.description}
+                </p>
+              </div>
+
+              <div className="mt-8 pt-5 border-t border-[#D9A15B]/15">
+                <div className="flex items-baseline justify-between mb-4">
+                  <span className="text-xs text-[#A89F91] uppercase tracking-wider">Offer Price</span>
+                  <p className="font-display text-3xl font-bold text-[#D9A15B] drop-shadow-sm">
+                    {offer.highlight}
+                  </p>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() =>
-                    toast.success("Offer claimed! 🎉", {
-                      description: `${offer.title} has been saved for your next visit!`,
-                    })
-                  }
-                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-foam py-3 text-sm font-semibold text-lagoon-deep transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-lift active:scale-95"
+                  onClick={() => handleClaimOffer(offer)}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-[#D9A15B] text-[#12100E] font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#E5A958] transition-all hover:scale-105 active:scale-95"
                 >
-                  Claim Offer
+                  <Plus className="size-4 stroke-[3]" />
+                  Claim & Add to Order
                 </button>
               </div>
             </article>
@@ -60,3 +89,4 @@ export function OffersSection() {
     </section>
   );
 }
+

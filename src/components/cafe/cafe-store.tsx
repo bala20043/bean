@@ -1,38 +1,49 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import type { MenuItem } from "@/data/cafe";
+import { toast } from "sonner";
 
-export type OrderLine = { item: MenuItem; qty: number };
+export type OrderLine = {
+  item: MenuItem;
+  qty: number;
+  isOffer?: boolean;
+  offerTag?: string;
+};
 
 type CafeStore = {
-  orderOpen: boolean;
-  reserveOpen: boolean;
-  selected: MenuItem | null;
   lines: OrderLine[];
+  cartOpen: boolean;
+  cartBounce: boolean;
+  checkoutOpen: boolean;
+  reserveOpen: boolean;
   total: number;
-  openOrder: (item?: MenuItem | null) => void;
-  closeOrder: () => void;
+  totalCount: number;
+  addItem: (item: MenuItem, qty?: number, isOffer?: boolean, offerTag?: string) => void;
+  updateQty: (id: string, delta: number) => void;
+  removeItem: (id: string) => void;
+  clearCart: () => void;
+  openCart: () => void;
+  closeCart: () => void;
+  openCheckout: () => void;
+  closeCheckout: () => void;
   openReserve: () => void;
   closeReserve: () => void;
-  setSelected: (item: MenuItem | null) => void;
-  addLine: (item: MenuItem, qty: number) => void;
-  removeLine: (id: string) => void;
-  clearOrder: () => void;
 };
 
 const CafeContext = createContext<CafeStore | null>(null);
 
 export function CafeProvider({ children }: { children: ReactNode }) {
-  const [orderOpen, setOrderOpen] = useState(false);
-  const [reserveOpen, setReserveOpen] = useState(false);
-  const [selected, setSelected] = useState<MenuItem | null>(null);
   const [lines, setLines] = useState<OrderLine[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartBounce, setCartBounce] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [reserveOpen, setReserveOpen] = useState(false);
 
-  const openOrder = useCallback((item?: MenuItem | null) => {
-    if (item) setSelected(item);
-    setOrderOpen(true);
+  const triggerCartBounce = useCallback(() => {
+    setCartBounce(true);
+    setTimeout(() => setCartBounce(false), 650);
   }, []);
 
-  const addLine = useCallback((item: MenuItem, qty: number) => {
+  const addItem = useCallback((item: MenuItem, qty = 1, isOffer = false, offerTag = "") => {
     setLines((prev) => {
       const existing = prev.find((line) => line.item.id === item.id);
       if (existing) {
@@ -40,12 +51,38 @@ export function CafeProvider({ children }: { children: ReactNode }) {
           line.item.id === item.id ? { ...line, qty: line.qty + qty } : line,
         );
       }
-      return [...prev, { item, qty }];
+      return [...prev, { item, qty, isOffer, offerTag }];
     });
+
+    triggerCartBounce();
+
+    toast.success(`Added ${item.name} to order`, {
+      description: isOffer ? `Special Offer "${offerTag}" applied!` : `₹${item.price * qty} · View cart in header`,
+      duration: 3000,
+    });
+  }, [triggerCartBounce]);
+
+  const updateQty = useCallback((id: string, delta: number) => {
+    setLines((prev) =>
+      prev
+        .map((line) => {
+          if (line.item.id === id) {
+            const newQty = line.qty + delta;
+            return newQty > 0 ? { ...line, qty: newQty } : null;
+          }
+          return line;
+        })
+        .filter((line): line is OrderLine => line !== null),
+    );
   }, []);
 
-  const removeLine = useCallback((id: string) => {
+  const removeItem = useCallback((id: string) => {
     setLines((prev) => prev.filter((line) => line.item.id !== id));
+    toast.info("Item removed from cart");
+  }, []);
+
+  const clearCart = useCallback(() => {
+    setLines([]);
   }, []);
 
   const total = useMemo(
@@ -53,23 +90,47 @@ export function CafeProvider({ children }: { children: ReactNode }) {
     [lines],
   );
 
+  const totalCount = useMemo(
+    () => lines.reduce((sum, line) => sum + line.qty, 0),
+    [lines],
+  );
+
   const value = useMemo<CafeStore>(
     () => ({
-      orderOpen,
-      reserveOpen,
-      selected,
       lines,
+      cartOpen,
+      cartBounce,
+      checkoutOpen,
+      reserveOpen,
       total,
-      openOrder,
-      closeOrder: () => setOrderOpen(false),
+      totalCount,
+      addItem,
+      updateQty,
+      removeItem,
+      clearCart,
+      openCart: () => setCartOpen(true),
+      closeCart: () => setCartOpen(false),
+      openCheckout: () => {
+        setCartOpen(false);
+        setCheckoutOpen(true);
+      },
+      closeCheckout: () => setCheckoutOpen(false),
       openReserve: () => setReserveOpen(true),
       closeReserve: () => setReserveOpen(false),
-      setSelected,
-      addLine,
-      removeLine,
-      clearOrder: () => setLines([]),
     }),
-    [orderOpen, reserveOpen, selected, lines, total, openOrder, addLine, removeLine],
+    [
+      lines,
+      cartOpen,
+      cartBounce,
+      checkoutOpen,
+      reserveOpen,
+      total,
+      totalCount,
+      addItem,
+      updateQty,
+      removeItem,
+      clearCart,
+    ],
   );
 
   return <CafeContext.Provider value={value}>{children}</CafeContext.Provider>;
